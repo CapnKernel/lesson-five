@@ -9,6 +9,9 @@
 
 Congratulations, you've made it to the git repository for our fifth lesson. Hopefully you also made it to the class and some of this makes sense to you.
 
+The slides are available online here:
+https://melbdjango.github.io/lesson-five/
+
 Check our RESOURCES.md for some links we think you'll find handy.
 
 
