@@ -216,7 +216,7 @@ class Person:
 
 - Different behaviour depending on the type of object the code is interacting with
 - Out of scope for this presentation
-- Python implements it's own take on this concept
+- Python implements its own take on this concept
 
 ---
 
