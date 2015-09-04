@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.utils import timezone
 
 from .forms import EntryForm, ProjectForm, ClientForm
 from .models import Client, Entry, Project
@@ -10,13 +11,7 @@ def clients(request):
         form = ClientForm(request.POST)
         if form.is_valid():
             # If the form is valid, create a client with submitted data
-            # Below is the shortcut equivalent of:
-            # client = Client()
-            # client.name = form.cleaned_data['name']
-            # client.save()
-            # Sometimes you don't want to save the object until the end,
-            # sometimes you don't care!
-            client = Client.objects.create(name=form.cleaned_data['name'])
+            form.save()
             return redirect('client-list')
     else:
         form = ClientForm()
@@ -32,15 +27,14 @@ def client_detail(request, pk):
     client = get_object_or_404(Client, pk=pk)
 
     if request.method == 'POST':
-        form = ClientForm(request.POST)
+        form = ClientForm(request.POST, instance=client)
         if form.is_valid():
             # Update client details
-            client.name = form.cleaned_data['name']
-            client.save()
+            form.save()
             return redirect('client-list')
     else:
         # Initialise form with client data
-        form = ClientForm(initial={'name': client.name})
+        form = ClientForm(instance=client)
 
     return render(request, 'client_detail.html', {
         'client': client,
@@ -51,23 +45,49 @@ def client_detail(request, pk):
 def entries(request):
     if request.method == 'POST':
         # Create our form object with our POST data
-        entry_form = EntryForm(request.POST)
+        # We use .copy() so the dict the form uses for storing field
+        # data is mutable.
+        entry_form = EntryForm(request.POST.copy())
+        # Does user want stop field filled in with current time?
+        if 'alt_submit' in request.POST:
+            entry_form.data['stop'] = timezone.now()
         if entry_form.is_valid():
-            # If the form is valid, let's create and Entry with the submitted data
-            entry = Entry()
-            entry.start = entry_form.cleaned_data['start']
-            entry.stop = entry_form.cleaned_data['stop']
-            entry.project = entry_form.cleaned_data['project']
-            entry.description = entry_form.cleaned_data['description']
-            entry.save()
+            # If the form is valid, let's create an Entry with the submitted data
+            entry_form.save()
             return redirect('entry-list')
+        else:
+            if 'alt_submit' in request.POST:
+                # If the form is invalid and user pressed the button
+                # to fill stop in with the current time, unfill it before
+                # redisplaying.
+                entry_form.data['stop'] = ""
+
     else:
         entry_form = EntryForm()
 
     entry_list = Entry.objects.all()
     return render(request, 'entries.html', {
         'entry_list': entry_list,
-        'entry_form': entry_form,
+        'form': entry_form,
+    })
+
+
+def entry_detail(request, pk):
+    entry = get_object_or_404(Entry, pk=pk)
+
+    if request.method == 'POST':
+        form = EntryForm(request.POST, instance=entry)
+        if form.is_valid():
+            # Update entry details
+            form.save()
+            return redirect('entry-list')
+    else:
+        # Initialise form with entry data
+        form = EntryForm(instance=entry)
+
+    return render(request, 'entry_detail.html', {
+        'entry': entry,
+        'form': form,
     })
 
 
@@ -76,10 +96,7 @@ def projects(request):
         # Create our form object with our POST data
         form = ProjectForm(request.POST)
         if form.is_valid():
-            Project.objects.create(
-                name=form.cleaned_data['name'],
-                client=form.cleaned_data['client']
-            )
+            form.save()
             return redirect('project-list')
     else:
         form = ProjectForm()
@@ -95,18 +112,15 @@ def project_detail(request, pk):
     project = get_object_or_404(Project, pk=pk)
 
     if request.method == 'POST':
-        form = ProjectForm(request.POST)
+        form = ProjectForm(request.POST, instance=project)
         if form.is_valid():
             # Update project details
-            project.name = form.cleaned_data['name']
-            project.client=form.cleaned_data['client']
-            project.save()
+            form.save()
             return redirect('project-list')
     else:
         # Initialise form with project data
-        form = ProjectForm(initial={'name': project.name, 'client': project.client})
+        form = ProjectForm(instance=project)
 
-    project = get_object_or_404(Project, pk=pk)
     return render(request, 'project_detail.html', {
         'project': project,
         'form': form,

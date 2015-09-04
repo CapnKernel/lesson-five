@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Client project entries{% endblock %}
+
+{% block content %}
+  <div class="page-header">
+    <h2>Client project entries</h2>
+  </div>
+
+  <h3>Entry</h3>
+
+  {% include 'snippets/form_default.html' with form_title='Change Entry' form_submit_label='Update' %}  
+
+  <p>This entry is part of the <a href="{% url 'project-detail' pk=entry.project.pk %}">{{ entry.project.name }}</a> project for client <a href="{% url 'client-detail' pk=entry.project.client.pk %}">{{ entry.project.client.name }}</a>.
+
+{% endblock %}

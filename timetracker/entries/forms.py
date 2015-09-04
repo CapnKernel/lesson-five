@@ -1,23 +1,27 @@
 from django import forms
 from django.utils import timezone
 
-from .models import Project, Client
+from .models import Project, Client, Entry
 
 
-class ClientForm(forms.Form):
-    name = forms.CharField()
+class ClientForm(forms.ModelForm):
+    class Meta:
+        model = Client
+        exclude = ()
 
+class ProjectForm(forms.ModelForm):
+    class Meta:
+        model = Project
+        exclude = ()
 
-class ProjectForm(forms.Form):
-	name = forms.CharField()
-	client = forms.ModelChoiceField(queryset=Client.objects.all())
-
-
-class EntryForm(forms.Form):
-    start = forms.DateTimeField(label="Start Time", help_text="Format: 2006-10-25 14:30")
-    stop = forms.DateTimeField(label="End Time", help_text="Format: 2006-10-25 14:30")
-    project = forms.ModelChoiceField(queryset=Project.objects.all())
-    description = forms.CharField()
+class EntryForm(forms.ModelForm):
+    class Meta:
+        model = Entry
+        exclude = ()
+        labels = {
+            'start': 'Start Time',
+            'stop': 'Stop Time',
+        }
 
     def clean_start(self):
         """

@@ -4,14 +4,9 @@
 
 {% block content %}
   <div class="page-header">
-    <h2>Project - {{ project.name }}</h2>
+    <h2>Project</h2>
   </div>
 
   {% include 'snippets/form_default.html' with form_title='Edit Project' form_submit_label='Update' %}
 
-  <h3>Details</h3>
-  <ul class="list-unstyled col-md-6 pull-left" style="padding: 0;">
-    <li><label>Name</label>{{ project.name }}</li>
-    <li><label>Client</label><a href="{% url 'client-detail' pk=project.client.pk %}">{{ project.client }}</a></li>
-  </ul>
 {% endblock %}
