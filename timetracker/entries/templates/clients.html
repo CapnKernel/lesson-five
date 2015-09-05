@@ -10,11 +10,12 @@
   {% include 'snippets/form_default.html' with form_title='New Client' form_submit_label='Create' %}
 
   <ul class="list-group col-md-3">
-    {% for client in client_list %}
+    {% for client in clients %}
       <li class="list-group-item">
         <a href="{% url 'client-detail' pk=client.pk %}">{{ client.name }}</a>
         <a class="btn btn-warning btn-xs pull-right" href="{% url 'client-detail' pk=client.pk %}">Edit</a>
       </li>
     {% endfor %}
   </ul>
+
 {% endblock %}

@@ -10,7 +10,7 @@
   {% include 'snippets/form_default.html' with form_title='New Entry' form_submit_label='Create' form_alt_submit_label='Create Entry with End Now' %}
 
   <ul class="list-group col-md-3">
-    {% for entry in entry_list %}
+    {% for entry in entries %}
       <li class="list-group-item">{{ entry.description }}
         <a href="{% url 'entry-detail' pk=entry.pk %}">{{ entry }}</a>
         <a class="btn btn-warning btn-xs pull-right" href="{% url 'entry-detail' pk=entry.pk %}">Edit</a>

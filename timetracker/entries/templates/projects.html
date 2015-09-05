@@ -10,7 +10,7 @@
   {% include 'snippets/form_default.html' with form_title='New Project' form_submit_label='Create Project' %}
 
   <ul class="list-group col-md-3">
-    {% for project in project_list %}
+    {% for project in projects %}
       <li class="list-group-item">
         <a href="{% url 'project-detail' pk=project.pk %}">{{ project.name }}</a> (<a href="{% url 'client-detail' pk=project.client.pk %}">{{ project.client.name }}</a>)
         <a class="btn btn-warning btn-xs pull-right" href="{% url 'project-detail' pk=project.pk %}">Edit</a>

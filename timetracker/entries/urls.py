@@ -6,10 +6,10 @@ from . import views
 
 urlpatterns = [
     url(r'^$', lambda request: redirect('client-list')),
-    url(r'^clients/$', views.clients, name='client-list'),
-    url(r'^clients/(?P<pk>\d+)/$', views.client_detail, name='client-detail'),
-    url(r'^entries/$', views.entries, name='entry-list'),
-    url(r'^entries/(?P<pk>\d+)/$', views.entry_detail, name='entry-detail'),
-    url(r'^projects/$', views.projects, name='project-list'),
-    url(r'^projects/(?P<pk>\d+)/$', views.project_detail, name='project-detail'),
+    url(r'^clients/$', views.ClientCreateView.as_view(), name='client-list'),
+    url(r'^clients/(?P<pk>\d+)/$', views.ClientUpdateView.as_view(), name='client-detail'),
+    url(r'^entries/$', views.EntryCreateView.as_view(), name='entry-list'),
+    url(r'^entries/(?P<pk>\d+)/$', views.EntryUpdateView.as_view(), name='entry-detail'),
+    url(r'^projects/$', views.ProjectCreateView.as_view(), name='project-list'),
+    url(r'^projects/(?P<pk>\d+)/$', views.ProjectUpdateView.as_view(), name='project-detail'),
 ]

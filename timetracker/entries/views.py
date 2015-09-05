@@ -1,127 +1,87 @@
-from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
+from django.core.urlresolvers import reverse_lazy
+
+from django.views.generic import UpdateView, CreateView
 
 from .forms import EntryForm, ProjectForm, ClientForm
 from .models import Client, Entry, Project
 
 
-def clients(request):
-    if request.method == 'POST':
-        # Create our form object with our POST data
-        form = ClientForm(request.POST)
-        if form.is_valid():
-            # If the form is valid, create a client with submitted data
-            form.save()
-            return redirect('client-list')
-    else:
-        form = ClientForm()
+class ClientCreateView(CreateView):
+    model = Client
+    form_class = ClientForm
+    context_object_name = 'client'
+    template_name = 'clients.html'
+    success_url = reverse_lazy('client-list')
 
-    client_list = Client.objects.all()
-    return render(request, 'clients.html', {
-        'client_list': client_list,
-        'form': form,
-    })
+    def get_context_data(self, **kwargs):
+        context = super(ClientCreateView, self).get_context_data(**kwargs)
+        context['clients'] = Client.objects.all()
 
+        return context
 
-def client_detail(request, pk):
-    client = get_object_or_404(Client, pk=pk)
-
-    if request.method == 'POST':
-        form = ClientForm(request.POST, instance=client)
-        if form.is_valid():
-            # Update client details
-            form.save()
-            return redirect('client-list')
-    else:
-        # Initialise form with client data
-        form = ClientForm(instance=client)
-
-    return render(request, 'client_detail.html', {
-        'client': client,
-        'form': form,
-    })
+class ClientUpdateView(UpdateView):
+    model = Client
+    form_class = ClientForm
+    template_name = 'client_detail.html'
+    success_url = reverse_lazy('client-list')
 
 
-def entries(request):
-    if request.method == 'POST':
-        # Create our form object with our POST data
-        # We use .copy() so the dict the form uses for storing field
-        # data is mutable.
-        entry_form = EntryForm(request.POST.copy())
+class EntryCreateView(CreateView):
+    model = Entry
+    form_class = EntryForm
+    context_object_name = 'entry'
+    template_name = 'entries.html'
+    success_url = reverse_lazy('entry-list')
+
+    def get_form_kwargs(self):
+        kwargs = super(EntryCreateView, self).get_form_kwargs()
         # Does user want stop field filled in with current time?
-        if 'alt_submit' in request.POST:
-            entry_form.data['stop'] = timezone.now()
-        if entry_form.is_valid():
-            # If the form is valid, let's create an Entry with the submitted data
-            entry_form.save()
-            return redirect('entry-list')
-        else:
-            if 'alt_submit' in request.POST:
-                # If the form is invalid and user pressed the button
-                # to fill stop in with the current time, unfill it before
-                # redisplaying.
-                entry_form.data['stop'] = ""
+        if self.request.method == 'POST' and 'alt_submit' in self.request.POST:
+            # Yes
+            kwargs['data'] = kwargs['data'].copy()
+            kwargs['data']['stop'] = timezone.now()
 
-    else:
-        entry_form = EntryForm()
+        return kwargs
 
-    entry_list = Entry.objects.all()
-    return render(request, 'entries.html', {
-        'entry_list': entry_list,
-        'form': entry_form,
-    })
+    def form_invalid(self, form):
+        # If the form is invalid and user pressed the button
+        # to fill stop in with the current time, unfill it before
+-       # redisplaying.
+        if self.request.method == "POST" and 'alt_submit' in self.request.POST:
+            form.data['stop'] = ""
+        return super(EntryCreateView, self).form_invalid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super(EntryCreateView, self).get_context_data(**kwargs)
+        context['entries'] = Entry.objects.all()
 
-def entry_detail(request, pk):
-    entry = get_object_or_404(Entry, pk=pk)
-
-    if request.method == 'POST':
-        form = EntryForm(request.POST, instance=entry)
-        if form.is_valid():
-            # Update entry details
-            form.save()
-            return redirect('entry-list')
-    else:
-        # Initialise form with entry data
-        form = EntryForm(instance=entry)
-
-    return render(request, 'entry_detail.html', {
-        'entry': entry,
-        'form': form,
-    })
+        return context
 
 
-def projects(request):
-    if request.method == 'POST':
-        # Create our form object with our POST data
-        form = ProjectForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('project-list')
-    else:
-        form = ProjectForm()
-
-    project_list = Project.objects.all()
-    return render(request, 'projects.html', {
-        'project_list': project_list,
-        'form': form
-    })
+class EntryUpdateView(UpdateView):
+    model = Entry
+    form_class = EntryForm
+    template_name = 'entry_detail.html'
+    success_url = reverse_lazy('entry-list')
 
 
-def project_detail(request, pk):
-    project = get_object_or_404(Project, pk=pk)
+class ProjectCreateView(CreateView):
+    model = Project
+    form_class = ProjectForm
+    context_object_name = 'project'
+    template_name = 'projects.html'
+    success_url = reverse_lazy('project-list')
 
-    if request.method == 'POST':
-        form = ProjectForm(request.POST, instance=project)
-        if form.is_valid():
-            # Update project details
-            form.save()
-            return redirect('project-list')
-    else:
-        # Initialise form with project data
-        form = ProjectForm(instance=project)
+    def get_context_data(self, **kwargs):
+        context = super(ProjectCreateView, self).get_context_data(**kwargs)
+        context['projects'] = Project.objects.all()
 
-    return render(request, 'project_detail.html', {
-        'project': project,
-        'form': form,
-    })
+        return context
+
+
+class ProjectUpdateView(UpdateView):
+    model = Project
+    form_class = ProjectForm
+    template_name = 'project_detail.html'
+    success_url = reverse_lazy('project-list')
